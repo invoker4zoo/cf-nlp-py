@@ -10,7 +10,7 @@ normal nlp python lib
 * [stable](cfnlp/stable): 工具库中需要的模型静态文件存储地址
 * [parser](cfnlp/parser): 文本解析方法集合
 * [tools](cfnlp/tools): python常用工具方法集合
-    * [connector](cfnlp/tools/connector): 数据库连接方法
+* [connector](cfnlp/tools/connector): 数据库连接方法
 * [model](cfnlp/model): 自然语言处理相关模型算法
 
 ## 版本更新日志
@@ -45,7 +45,12 @@ normal nlp python lib
 ```
 
 ```
-
+* textEventGraphParser: 文档抽取关键信息并图谱化展示
+```
+input: 文本内容（.txt）
+output： 图谱结构化文件（.html）
+注：需要安装LTP
+```
 * documentParse: 文本类文档的解析方法
 
 #### [tools](cfnlp/tools): 常用工具说明
