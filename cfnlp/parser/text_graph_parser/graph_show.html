@@ -1,0 +1,52 @@
+
+    <html>
+    <head>
+      <script type="text/javascript" src="VIS/dist/vis.js"></script>
+      <link href="VIS/dist/vis.css" rel="stylesheet" type="text/css">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+    <body>
+
+    <div id="VIS_draw"></div>
+
+    <script type="text/javascript">
+      var nodes = [{'id': 21, 'label': '探索', 'group': 'Event'}, {'id': 59, 'label': '重庆', 'group': 'Event'}, {'id': 30, 'label': '商业', 'group': 'Event'}, {'id': 28, 'label': '企业', 'group': 'Event'}, {'id': 38, 'label': '平台', 'group': 'Event'}, {'id': 52, 'label': '2021年', 'group': 'Event'}, {'id': 50, 'label': '重庆市', 'group': 'Event'}, {'id': 32, 'label': '试点', 'group': 'Event'}, {'id': 23, 'label': '为基础', 'group': 'Event'}, {'id': 58, 'label': '九龙坡', 'group': 'Event'}, {'id': 26, 'label': '价值', 'group': 'Event'}, {'id': 46, 'label': '明年', 'group': 'Event'}, {'id': 40, 'label': '信息', 'group': 'Event'}, {'id': 55, 'label': '地名', 'group': 'Event'}, {'id': 53, 'label': '时间', 'group': 'Event'}, {'id': 42, 'label': '能力', 'group': 'Event'}, {'id': 45, 'label': '高频词', 'group': 'Event'}, {'id': 34, 'label': '贷款', 'group': 'Event'}, {'id': 36, 'label': '信用', 'group': 'Event'}, {'id': 19, 'label': '关键词', 'group': 'Event'}];
+      var edges = [{'from': 28, 'label': '', 'to': 19}, {'from': 26, 'label': '', 'to': 19}, {'from': 30, 'label': '', 'to': 19}, {'from': 34, 'label': '', 'to': 19}, {'from': 32, 'label': '', 'to': 19}, {'from': 36, 'label': '', 'to': 19}, {'from': 38, 'label': '', 'to': 19}, {'from': 40, 'label': '', 'to': 19}, {'from': 59, 'label': '', 'to': 19}, {'from': 42, 'label': '', 'to': 19}, {'from': 59, 'label': '', 'to': 21}, {'from': 59, 'label': '', 'to': 23}, {'from': 34, 'label': '', 'to': 32}, {'from': 26, 'label': '', 'to': 45}, {'from': 28, 'label': '', 'to': 45}, {'from': 30, 'label': '', 'to': 45}, {'from': 32, 'label': '', 'to': 45}, {'from': 34, 'label': '', 'to': 45}, {'from': 36, 'label': '', 'to': 45}, {'from': 38, 'label': '', 'to': 45}, {'from': 40, 'label': '', 'to': 45}, {'from': 42, 'label': '', 'to': 45}, {'from': 59, 'label': '', 'to': 45}, {'from': 46, 'label': '', 'to': 53}, {'from': 58, 'label': '', 'to': 55}, {'from': 50, 'label': '', 'to': 55}, {'from': 52, 'label': '', 'to': 53}, {'from': 59, 'label': '', 'to': 55}, {'from': 59, 'label': '', 'to': 58}, {'from': 58, 'label': '', 'to': 59}];
+
+      var container = document.getElementById("VIS_draw");
+
+      var data = {
+        nodes: nodes,
+        edges: edges
+      };
+
+      var options = {
+          nodes: {
+              shape: 'circle',
+              size: 15,
+              font: {
+                  size: 15
+              }
+          },
+          edges: {
+              font: {
+                  size: 10,
+                  align: 'center'
+              },
+              color: 'red',
+              arrows: {
+                  to: {enabled: true, scaleFactor: 1.2}
+              },
+              smooth: {enabled: true}
+          },
+          physics: {
+              enabled: true
+          }
+      };
+
+      var network = new vis.Network(container, data, options);
+
+    </script>
+    </body>
+    </html>
+    
