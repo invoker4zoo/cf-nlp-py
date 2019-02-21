@@ -1,4 +1,4 @@
-# 重金所自然语言处理python工具库
+# 自然语言处理python工具库
 CQFAE nlp python lib
 
 -----
