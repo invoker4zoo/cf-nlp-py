@@ -47,9 +47,12 @@ normal nlp python lib
 ```
 * textEventGraphParser: 文档抽取关键信息并图谱化展示
 ```
-input: 文本内容（.txt）
-output： 图谱结构化文件（.html）
-注：需要安装LTP
+使用说明：
+from cfnlp.parser.text_graph_parser.event_mining import EventMining
+content = '你要分析的文本'
+handler = CrimeMining()
+handler.main(content)
+输出：项目路径下graph_show.html
 ```
 * documentParse: 文本类文档的解析方法
 

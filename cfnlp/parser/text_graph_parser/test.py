@@ -2,7 +2,7 @@
 # @Time     : 2019/2/21 15:21
 # @Author   : Tanrui
 # @Email    : cq_tanrui@163.com
-# @File     : test.py
+# @File     : event_text_graph_test.py
 # @Software : PyCharm
 # @Desc     :
 
