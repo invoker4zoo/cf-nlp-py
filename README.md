@@ -18,7 +18,7 @@ normal nlp python lib
 > 版本0.1（更新时间2019-02-20）
 
 > #### 待实现功能
->-[X] 常用工具集合
+>- [X] 常用工具集合
 >- [ ] 文本解析方案（包括单文本的html文件和纯文本解析）
 >- [ ] nlp模型工具集合
 >- [X] 数据库链接方法集合
@@ -32,6 +32,7 @@ normal nlp python lib
 * AreaTagLibrary: 国内地点识别文件， 在jar_method中载入使用
 * AbbreviationWord: 国内地名缩写词识别文件，在jar_method中载入使用
 * java-knowledge-extraction-sdk-1.0.jar: 集成java方法中使用的jar包
+* punct.py: punct(字符串), sentence_delimiters(句子分割符)
 
 #### [parser](cfnlp/parse): 文本解析方法
 
@@ -50,7 +51,7 @@ normal nlp python lib
 
 #### [tools](cfnlp/tools): 常用工具说明
 
-* [jar_method.py](cfnlp/tools/jar_method.py):在python中集成java的部分功能函数。
+###### [jar_method.py](cfnlp/tools/jar_method.py):在python中集成java的部分功能函数。
 
 - 初始化java方法类
 ```
@@ -67,21 +68,62 @@ normal nlp python lib
 
 ```
 
+###### [logger.py](cfnlp/tools/logger.py): python日志工具
+
+- 日志存储会在当前启动脚本路径下建立./log 文件夹，并以时间作为分割
+
+```
+    from cfnlp.tools.logger import logger
+    logger.info('test text')
+```
+
+
 #### [connector](cfnlp/tools/connector): 数据库连接方法集合
 
 - [es_connector.py](cfnlp/tools/connector/es_connector.py)elasticsearch搜索引擎连接方法
 ```
-
+    # 初始化es连接
+    # 需要ip, 端口, 索引名称， doc_type名称
+    es_db = esConnector(url='localhost:9200', index='test', doc_type='finace')
+    # 可复写es查询方法
 ```
 
 - [mysql_connector.py](cfnlp/tools/connector/mysql_connector.py)mysql数据库连接方法
-```
 
+```
+    # 初始化mysql 连接
+    # 需要hostip, 用户名， 用户密码， db名， table名
+    mysql_db = mysqlConnector(host='127.0.0.1', user='root', password='123456', db='db_name', table='table_name')
+    # 可复写mysqlConnector类的查询方法，示例
+    # def select_one_info(self, sql, sql_params):
+    #     """
+    #     可复写方法，查询一条数据
+    #     :param sql: example:"select * from `table_name` limit %d"
+    #     :param sql_params: (1000,)
+    #     :return:
+    #     """
+    #     try:
+    #         with self.connector.cursor() as cursor:
+    #             cursor.execute(sql, sql_params)
+    #             result = cursor.fetchone()
+    #             return result
+    #     except Exception, e:
+    #         logger.error('select one info failed for %s' % str(e))
+    #         return None
 ```
 
 - [mongo_connector.py](cfnlp/tools/connector/mongo_connector.py)mongo数据库连接方法
 ```
-
+    # 初始化mongo连接，需要ip地址，端口，db名，collection名
+    MONGODB_SERVER = "127.0.0.1"
+    MONGODB_PORT = 27017
+    MONGODB_DB = "gov_finace"
+    MONGODB_COLLECTION = "center"
+    db = mongoConnector(MONGODB_SERVER,MONGODB_PORT,MONGODB_DB,MONGODB_COLLECTION)
 ```
 
 - [neo_connector.py](cfnlp/tools/connector/neo_connector.py)neo4j图数据库连接方法
+```
+    # 初始化neo4j连接，需要ip地址，端口，用户名，瀛湖密码
+    neo4j_db = Neo4jConnector("bolt://localhost:7687", "neo4j", "passw0rd")
+```
