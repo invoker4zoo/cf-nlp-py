@@ -6,7 +6,7 @@
 # @Software : PyCharm
 # @Desc     :
 
-from cfnlp.parser.text_graph_parser.ltp_parser import *
+from ltp_parser import *
 import re
 from collections import Counter
 from cfnlp.parser.text_graph_parser.graph_show import *
