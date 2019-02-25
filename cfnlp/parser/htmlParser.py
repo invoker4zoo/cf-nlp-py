@@ -103,7 +103,7 @@ class htmlTableAnalysis(object):
                 return des
             else:
                 return des
-        except Exception, e:
+        except Exception as e:
             logger.error('search table describe failed for %s' % str(e))
 
     def _search_table_base_info(self, table_tag):
