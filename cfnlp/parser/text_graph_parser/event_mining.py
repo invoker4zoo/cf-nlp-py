@@ -9,14 +9,14 @@
 from ltp_parser import *
 import re
 from collections import Counter
-from cfnlp.parser.text_graph_parser.graph_show import *
-from cfnlp.parser.text_graph_parser.keywords_textrank import *
+from graph_show import *
+from keywords_textrank import *
 
 '''事件挖掘'''
 class EventMining:
-    def __init__(self):
+    def __init__(self,ltp_model_dir):
         self.textranker = TextRank()
-        self.parser = LtpParser()
+        self.parser = LtpParser(ltp_model_dir)
         self.ners = ['nh', 'ni', 'ns', 'nt']
         self.ner_dict = {
         'nh':'人物',

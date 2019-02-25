@@ -1,10 +1,7 @@
-# coding=utf-8
-"""
-@ license: Apache Licence
-@ github: invoker4zoo
-@ author: invoker/cc
-@ wechart: whatshowlove
-@ software: PyCharm
-@ file: __init__.py
-@ time: $19-2-22 上午9:03
-"""
+# -*- coding:utf-8 -*-
+# @Time     : 2019/2/22 9:34
+# @Author   : Tanrui
+# @Email    : cq_tanrui@163.com
+# @File     : __init__.py
+# @Software : PyCharm
+# @Desc     : 

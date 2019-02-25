@@ -10,8 +10,8 @@ import os
 from pyltp import Segmentor, Postagger, Parser, NamedEntityRecognizer
 
 class LtpParser():
-    def __init__(self):
-        LTP_DIR = "D:/git_hub_project/pyltpModelResource"
+    def __init__(self, ltp_model_dir):
+        LTP_DIR = ltp_model_dir
         self.segmentor = Segmentor()
         self.segmentor.load(os.path.join(LTP_DIR, "cws.model"))
 
