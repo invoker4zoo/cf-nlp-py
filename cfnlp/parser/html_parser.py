@@ -9,12 +9,12 @@
 @ time: $19-2-21 下午3:28
 """
 import sys
-sys.path.append('..')
+import os
 import json
 from bs4 import BeautifulSoup
 import numpy as np
-from tools.logger import logger
-from stable.punct import sentence_delimiters
+from cfnlp.tools.logger import logger
+from cfnlp.stable.punct import sentence_delimiters
 import jieba
 
 reload(sys)

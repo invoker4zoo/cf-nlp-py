@@ -24,6 +24,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+setup.cfg
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -110,6 +111,7 @@ venv.bak/
 # log
 *.log
 *.log.*
+log/*
 
 # local log file path
-logs/*
+log/*
