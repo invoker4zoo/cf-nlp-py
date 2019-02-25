@@ -12,19 +12,25 @@ import sys
 sys.path.append('..')
 import json
 from bs4 import BeautifulSoup
+import numpy as np
 from tools.logger import logger
 from stable.punct import sentence_delimiters
 import jieba
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 
 class htmlTableAnalysis(object):
 
     def __init__(self, origin_html, saving_path):
         """
 
-        :param origin_html: 需要传入的html文件原文件
+        :param origin_html: 需要传入的html文件原文件内容
         :param saving_path: 输出的解析文件路径
         """
         self.html = origin_html
+        self.soup = BeautifulSoup(self.html, 'html5lib')
         self.saving_path = saving_path
 
     def _get_tag_string(self, tag):
@@ -49,11 +55,75 @@ class htmlTableAnalysis(object):
         """
         for seg in str[::-1]:
             try:
-                if seg.encode('utf-8') in sentence_delimiters:
+                if seg in sentence_delimiters:
                     return True
             except:
                 continue
         return False
+
+    def _check_list_repeat(self, key_list):
+        """
+        判断列表中是否存在重复的子列表,如果有，提出子列表的index 和key
+        :param key_list:
+        :return:is_repeat bool
+                repeat index list [[index1, index2, index3,...],...]
+                new_key_list list
+        """
+        key_list = key_list.tolist()
+        is_repeat = False
+        key_set = set(key_list)
+        key_list_length = len(key_list)
+        if len(key_set) == len(key_list):
+            return False, None, key_list
+        new_key_list = key_list
+        for seg in key_list:
+            seg_index = [index for index, key in enumerate(key_list) if seg == key]
+            if len(seg_index) > 1:
+                cache_list = list()
+                for index, _ in enumerate(seg_index[:-1]):
+                    cache_list.append(seg_index[index + 1] - seg_index[index])
+                cache_list.append(key_list_length - seg_index[-1])
+                repeat_length = min(cache_list)
+                if repeat_length < 2:
+                    continue
+                for shift in range(1, repeat_length):
+                    cache_list = list()
+                    for index in seg_index:
+                        cache_list.append(key_list[index:index + shift + 1])
+                    # set unhashable list
+                    # if len(set(cache_list)) == 1:
+                    #     continue
+                    for index in range(0, len(cache_list) - 1):
+                        if cache_list[index] == cache_list[index + 1]:
+                            continue
+                        else:
+                            index -= 1
+                            break
+                    if index == len(cache_list) - 2:
+                        if shift == repeat_length - 1:
+                            is_repeat = True
+                            shift_length = shift
+                            continue
+                        else:
+                            continue
+                    else:
+                        if shift == 1:
+                            break
+                        else:
+                            is_repeat = True
+                            shift_length = shift - 1
+                            break
+                if is_repeat:
+                    new_key_list = key_list[seg_index[0]:seg_index[0] + shift_length + 1]
+                    cache_list = list()
+                    for index in seg_index:
+                        cache_list.append(range(index, index + shift_length + 1))
+                    return is_repeat, cache_list, new_key_list
+                else:
+                    return False, None, new_key_list
+            else:
+                continue
+        return False, None, new_key_list
 
     def _search_table_describe(self, table_tag):
         """
@@ -165,3 +235,193 @@ class htmlTableAnalysis(object):
         # 有效性检查
         invaild = True if float(empty_head) / table_col > 0.8 or table_col < 1 or table_row < 2 else False
         return table_col, table_row, row_head, col_head, invaild
+
+    def generate_table_matrix(self, table_tag, table_col, table_row):
+        """
+
+        :param table_tag:
+        :param table_col:
+        :param table_row:
+        :return:
+        """
+        try:
+            str_matrix = [[None for _ in range(table_col)] for _ in range(table_row)]
+            for row_index, tr in enumerate(table_tag.find_all('tr')):
+                for col_index, td in enumerate(tr.find_all('td')):
+                    wide = 0
+                    height = 0
+                    des = self._get_tag_string(td)
+                    des = des.strip()
+                    des = des.replace('\n', '')
+                    des = des.replace(' ', '')
+                    for i in range(0, table_col - col_index):
+                        if str_matrix[row_index][col_index + i] == None:
+                            str_matrix[row_index][col_index + i] = des
+                            # 横向重定位
+                            col_index = col_index + i
+                            break
+                        else:
+                            continue
+                    if td.attrs.get('rowspan'):
+                        height = int(td.attrs.get('rowspan'))
+                    if td.attrs.get('colspan'):
+                        wide = int(td.attrs.get('colspan'))
+                    if wide and height:
+                        for i in range(0, height):
+                            for j in range(0, wide):
+                                str_matrix[row_index + i][col_index + j] = des
+                        continue
+                    elif wide or height:
+                        if wide:
+                            for i in range(1, wide):
+                                str_matrix[row_index][col_index + i] = des
+                        if height:
+                            for i in range(1, height):
+                                str_matrix[row_index + i][col_index] = des
+                    else:
+                        pass
+            # self.matrix = str_matrix
+            return str_matrix
+        except Exception, e:
+            logger.error('get table matrix failed')
+            return None
+
+    def generate_table_json(self, matrix, row_head, _col_head):
+        """
+        表格数据json化
+        :param table_tag:
+        :param matrix:
+        :param row_head:
+        :return:
+        """
+        try:
+            table_info = []
+            matrix = np.array(matrix)
+            table_col = len(matrix[0, :])
+            table_row = len(matrix[:, 0])
+            # 在函数内部对_col_head进行了操作，需要用函数内的变量代替_col_head
+            # global _col_head
+            row_list = matrix[row_head:, _col_head - 1]
+            col_list = matrix[row_head - 1, _col_head:]
+            head_str = matrix[row_head - 1, _col_head - 1]
+            year_head = 0
+            num_head = 0
+            year_head_row = 0
+            num_head_row = 0
+            for seg in col_list:
+                if seg.endswith(u'年'):
+                    year_head += 1
+                try:
+                    int(seg.strip())
+                    num_head += 1
+                except:
+                    pass
+            for seg in row_list:
+                if seg.endswith(u'年'):
+                    year_head_row += 1
+                try:
+                    float(seg.strip())
+                    num_head_row += 1
+                except:
+                    pass
+            # clean head_str
+            head_str = head_str.strip().replace('\n', '').replace(' ', '')
+            if head_str == u'序号':
+                head_str_index = True
+            else:
+                head_str_index = False
+
+            is_horizontal = True if float(year_head) / table_col > 0.6 or float(num_head) / table_col > 0.6 else False
+            # 去除序号列
+            is_row_num = True if float(year_head_row) / table_col < 0.4 or float(
+                num_head_row) / table_col > 0.6 else False
+            if head_str_index and is_row_num:
+                _col_head += 1
+                row_list = matrix[row_head:, _col_head - 1]
+                col_list = matrix[row_head - 1, _col_head:]
+            if is_horizontal:
+                key_list = row_list
+                inner_key_list = col_list
+            else:
+                key_list = col_list
+                inner_key_list = row_list
+            is_repeat, repeat_index, new_key_list = self._check_list_repeat(key_list)
+            if not is_repeat:
+                info_dic = dict()
+                for i, key in enumerate(key_list):
+                    key = key.strip().replace('\n', '').replace(' ', '')
+                    if key not in info_dic.keys():
+                        info_dic[key] = dict()
+                    else:
+                        continue
+                    for j, inner_key in enumerate(inner_key_list):
+                        inner_key = inner_key.strip().replace('\n', '').replace(' ', '')
+                        if inner_key not in info_dic[key].keys():
+                            if is_horizontal:
+                                info_dic[key][inner_key] = matrix[i + row_head, j + _col_head]
+                            else:
+                                info_dic[key][inner_key] = matrix[j + row_head, i + _col_head]
+                table_info.append(info_dic)
+                # return table_json
+            else:
+                # 是否一开始就出现重复key
+                # 如果重复key是以第一个key开始，则重新提取inner_key
+                if repeat_index[0][0] != 0:
+                    begin_repeat = False
+                else:
+                    begin_repeat = True
+                for index_list in repeat_index:
+                    if begin_repeat:
+                        if is_horizontal:
+                            inner_key_list = matrix[row_head + index_list[0] - 1, _col_head:]
+                        else:
+                            inner_key_list = matrix[row_head:, _col_head + index_list[0] - 1]
+                    info_dic = dict()
+                    for i, key in zip(index_list, new_key_list):
+                        key = key.strip().replace('\n', '').replace(' ', '')
+                        if key not in info_dic.keys():
+                            info_dic[key] = dict()
+
+                        for j, inner_key in enumerate(inner_key_list):
+                            inner_key = inner_key.strip().replace('\n', '').replace(' ', '')
+                            if inner_key not in info_dic[key].keys():
+                                if is_horizontal:
+                                    info_dic[key][inner_key] = matrix[i + row_head][j + _col_head]
+                                else:
+                                    info_dic[key][inner_key] = matrix[j + row_head][i + _col_head]
+                    table_info.append(info_dic)
+            return table_info
+        except Exception, e:
+            logger.error('get table info failed for %s' % str(e))
+            return []
+
+    def main_parser(self):
+        """
+        html解析主函数
+        输出table_info_dic
+
+        [
+            {
+                'matrix': [[], []],
+                'tableIndex': 1,
+                'tableInfo':
+            }
+        ]
+        :return:
+        """
+        try:
+            self.table_info = list()
+            for index, table in enumerate(self.soup.find_all('table')):
+                info = dict()
+                info['describe'] = self._search_table_describe(table)
+                table_col, table_row, row_head, col_head, invaild = self._search_table_base_info(table)
+                if invaild:
+                    logger.info('find a invaild table tag, continue...')
+                    continue
+                else:
+                    info['matrix'] = self.generate_table_matrix(table, table_col, table_row)
+                    info['tableIndex'] = index
+                    info['tableInfo'] = self.generate_table_json(info['matrix'], row_head, col_head)
+                self.table_info.append(info)
+        except Exception, e:
+            logger.error('parser html failed for %s' % str(e))
