@@ -48,12 +48,12 @@ normal nlp python lib
 ```
 * textEventGraphParser: 文档抽取关键信息并图谱化展示
 ```
-使用说明：
-from cfnlp.parser.text_graph_parser.event_mining import EventMining
-content = '你要分析的文本'
-handler = CrimeMining()
-handler.main(content)
-输出：项目路径下graph_show.html
+    使用说明：
+    from cfnlp.parser.text_graph_parser.event_mining import EventMining
+    content = '你要分析的文本'
+    handler = CrimeMining()
+    handler.main(content)
+    输出：项目路径下graph_show.html
 ```
 * documentParse: 文本类文档的解析方法
 
@@ -63,17 +63,21 @@ handler.main(content)
 
 - 初始化java方法类
 ```
-
+    1.jvm路径加载;2.启动jvm;3.初始化方法模型
 ```
 
 - 地域识别方法
 ```
-
+    [get_format_area]:输入自然语言文本，识别地域并补全区域位置(省/市/区)
 ```
 
 - ansj分词方法
 ```
-
+    目前集成4类分词方法：1.精确分词-不去重;2.精确分词-去重;3.索引分词;4.Dic分词
+    >- [text_tokenizer]: 含4类分词方法
+    >- [text_tokenizer_stop]: 含4类分词方法，并激活停用词典。注：目前停用词典使用jar包内部管理，暂不支持外部加载。
+    >- [text_tokenizer_user]: 含4类分词方法，支持最多2个自定义词典加载。
+    >- [text_tokenizer_user_stop]: 含4类分词方法，支持最多2个自定义词典加载，并激活停用词典。注：目前停用词典使用jar包内部管理，暂不支持外部加载。
 ```
 
 ###### [logger.py](cfnlp/tools/logger.py): python日志工具
