@@ -30,8 +30,8 @@ normal nlp python lib
 
 #### [stable](cfnlp/stable): 静态文件说明
 * AreaTagLibrary: 国内地点识别文件， 在jar_method中载入使用
-* AbbreviationWord: 国内地名缩写词识别文件，在jar_method中载入使用
-* java-knowledge-extraction-sdk-1.0.jar: 集成java方法中使用的jar包
+* AbbreviationWord.txt: 国内地名缩写词识别文件，在jar_method中载入使用
+* jar-jpype-connector-1.0.jar: 集成java方法中使用的jar包
 * punct.py: punct(字符串), sentence_delimiters(句子分割符)
 
 #### [parser](cfnlp/parse): 文本解析方法
