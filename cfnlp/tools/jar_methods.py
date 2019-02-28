@@ -19,7 +19,7 @@ sys.setdefaultencoding('utf-8')
 
 
 class NLPModel(object):
-    def __int__(self, model_path, jar_path, **user_dic_path):
+    def __init__(self, model_path, jar_path, **user_dic_path):
         """
         jar methods including: ansj, area extra
         :param model_path:
