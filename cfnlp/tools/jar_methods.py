@@ -31,7 +31,7 @@ class NLPModel(object):
         jvm_path = get_default_jvm_path()
         # jpype.startJVM(jvm_path, '-Djava.class.path=' + jar_path)
         # increase jvm heap memory
-        jpype.startJVM(jvm_path, '-Djava.class.path=' + jar_path, '-Xms512M', '-Xmx2048M', '-XX:PermSize=64m',
+        jpype.startJVM(jvm_path, '-Djava.class.path=' + jar_path, '-Xms512M', '-Xmx2048m', '-XX:PermSize=64m',
                        '-XX:MaxPermSize=256m')
         # init ansj model
         self.ansj_api = JClass('com.zy.alg.JarExecution.AnsjSegPython')
@@ -42,7 +42,7 @@ class NLPModel(object):
             dic_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + '.') + dic_path
             self.user_dic[k] = self.ansj_api.insertUserDic(dic_path)
         # init area model
-        self.loc_api = JClass('com.zy.alg.JarExecution.AnsjSegPython')
+        self.loc_api = JClass('com.zy.alg.JarExecution.LocationPython')
         self.area_model = self.loc_api.init(model_path)
 
     #############__ansj seg methods__start#################
@@ -168,9 +168,18 @@ class NLPModel(object):
         :return: format -> province1&city1&area # province2&city2&area
         """
         try:
-            area = self.loc_api.getFormatArea(self.ansj_model, text)
+            area = self.loc_api.getFormatArea(self.area_model, text)
             return area
         except Exception, e:
             logger.error('area extractiopn failed for %s' % str(e))
             return None
     #############__area_extra methods__end###################
+
+
+if __name__ == '__main__':
+    # area extract demo
+    model_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + '.') + '\\stable\\'
+    nlp_model = NLPModel(model_path, model_path + 'jar-jpype-connector-1.0.jar')
+    text = '重庆綦江是个好地方，渝中区，深圳是紧邻粤港澳大湾区'
+    area = nlp_model.get_format_area(text)
+    print(area)
