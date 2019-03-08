@@ -6,11 +6,11 @@
 # @Software : PyCharm
 # @Desc     :
 
-from ltp_parser import *
 import re
+from cfnlp.parser.text_graph_parser.ltp_parser import *
 from collections import Counter
-from graph_show import *
-from keywords_textrank import *
+from cfnlp.parser.text_graph_parser.graph_show import *
+from cfnlp.parser.text_graph_parser.keywords_textrank import *
 
 '''事件挖掘'''
 class EventMining:

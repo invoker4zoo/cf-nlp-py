@@ -18,7 +18,7 @@ sys.setdefaultencoding('utf-8')
 
 
 class NLPModel(object):
-    def __int__(self, model_path, jar_path, **user_dic_path):
+    def __init__(self, model_path, jar_path, **user_dic_path):
         """
         jar methods including: ansj, area extra
         :param model_path:
@@ -30,7 +30,7 @@ class NLPModel(object):
         jvm_path = get_default_jvm_path()
         # jpype.startJVM(jvm_path, '-Djava.class.path=' + jar_path)
         # increase jvm heap memory
-        jpype.startJVM(jvm_path, '-Djava.class.path=' + jar_path, '-Xms512M', '-Xmx2048M', '-XX:PermSize=64m',
+        jpype.startJVM(jvm_path, '-Djava.class.path=' + jar_path, '-Xms512M', '-Xmx2048m', '-XX:PermSize=64m',
                        '-XX:MaxPermSize=256m')
         # init ansj model
         self.ansj_api = JClass('com.zy.alg.JarExecution.AnsjSegPython')
@@ -41,7 +41,7 @@ class NLPModel(object):
             dic_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + '.') + dic_path
             self.user_dic[k] = self.ansj_api.insertUserDic(dic_path)
         # init area model
-        self.loc_api = JClass('com.zy.alg.JarExecution.AnsjSegPython')
+        self.loc_api = JClass('com.zy.alg.JarExecution.LocationPython')
         self.area_model = self.loc_api.init(model_path)
 
     #############__ansj seg methods__start#################
@@ -167,9 +167,67 @@ class NLPModel(object):
         :return: format -> province1&city1&area # province2&city2&area
         """
         try:
-            area = self.loc_api.getFormatArea(self.ansj_model, text)
+            area = self.loc_api.getFormatArea(self.area_model, text)
             return area
         except Exception, e:
             logger.error('area extractiopn failed for %s' % str(e))
             return None
+
+    def area_extract(self, text):
+        """
+        area extract
+        :param text: input text
+        :return: json format
+        """
+        try:
+            area = self.loc_api.areaExtract(self.area_model, text)
+            if area == '':
+                return None
+            else:
+                area_list = list()
+                for k in area.split('#'):
+                    _area = k.split('&')
+                    province = None
+                    abbr = None
+                    city = None
+                    dist = None
+                    if len(_area) == 3:
+                        province = _area[0].split('/')[0] + '/' + _area[0].split('/')[1]
+                        abbr = _area[0].split('/')[2]
+                        city = _area[1]
+                        dist = _area[2]
+                    elif len(_area) == 2:
+                        province = _area[0].split('/')[0] + '/' + _area[0].split('/')[1]
+                        abbr = _area[0].split('/')[2]
+                        city = _area[1]
+                    elif len(_area) == 1:
+                        province = _area[0].split('/')[0] + '/' + _area[0].split('/')[1]
+                        abbr = _area[0].split('/')[2]
+                    area_list.append({"province": province,
+                                      "city": city,
+                                      "area": dist,
+                                      "abbreviation": abbr})
+                return area_list
+        except Exception, e:
+            logger.error('area extractiopn failed for %s' % str(e))
+            return None
     #############__area_extra methods__end###################
+
+
+if __name__ == '__main__':
+    # area extract demo
+    # model_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + '.') + '\\stable\\'
+    # nlp_model = NLPModel(model_path, model_path + 'jar-jpype-connector-1.0.jar')
+    # text = '重庆綦江是个好地方，渝中区，深圳是紧邻粤港澳大湾区'
+    # # area = nlp_model.area_extract(text)
+    # area = nlp_model.get_format_area(text)
+    # print(area)
+
+    # ansj
+    model_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + '.') + '\\stable\\'
+    nlp_model = NLPModel(model_path, model_path + 'jar-jpype-connector-1.0.jar')
+    text = '红酒（Red wine）是葡萄酒的一种，并不一定特指红葡萄酒。红酒的成分相当简单，是经自然发酵酿造出来的果酒，' \
+           '含有最多的是葡萄汁，葡萄酒有许多分类方式。'
+    terms = nlp_model.text_tokenizer(text)
+    for term in terms:
+        print('%s\t%s' % (term['name'], term['nature']))

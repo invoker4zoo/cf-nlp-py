@@ -6,7 +6,7 @@
 # @Software : PyCharm
 # @Desc     :
 
-from event_mining import EventMining
+from cfnlp.parser.text_graph_parser.event_mining import EventMining
 
 """
     input : doc

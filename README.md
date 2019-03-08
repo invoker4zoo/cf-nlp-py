@@ -136,6 +136,6 @@ normal nlp python lib
 
 - [neo_connector.py](cfnlp/tools/connector/neo_connector.py)neo4j图数据库连接方法
 ```
-    # 初始化neo4j连接，需要ip地址，端口，用户名，瀛湖密码
+    # 初始化neo4j连接，需要ip地址，端口，用户名，用户密码
     neo4j_db = Neo4jConnector("bolt://localhost:7687", "neo4j", "passw0rd")
 ```
