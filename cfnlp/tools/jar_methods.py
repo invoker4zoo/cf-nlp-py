@@ -9,7 +9,6 @@
 @Github  : zhangyuo
 """
 import os
-
 import jpype
 from jpype import *
 from cfnlp.tools.logger import logger

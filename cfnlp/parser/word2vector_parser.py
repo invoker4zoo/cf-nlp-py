@@ -20,4 +20,3 @@ class word2vector(object):
         model = word2vec.Word2Vec(str, size=300)
         model.save(self.vm_model_path)
 
-    def

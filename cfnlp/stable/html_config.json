@@ -1,0 +1,29 @@
+{
+   "basicInfo": {
+                  "processName": "test",
+                  "infoType": "document"
+   },
+   "loadingInfo": {
+                  "function": "loading_html_special",
+                  "type": "document",
+                  "documentFormat": "html",
+                  "loadingPath": "/home/showlove/cc/gov/ppp/test/html",
+                  "filter": "filter_special",
+                  "loadingFormat": {
+                    "title": "StringType",
+                    "content": "StringType"
+                  }
+   },
+   "tableInfo": {
+                  "function": "extract_table_info_from_html_ppp",
+                  "resultType": "ListType"
+   },
+   "summaryInfo": {
+                  "function": "extract_summary_info_from_html_ppp",
+                  "resultType": "ListType"
+   },
+   "troubleDesInfo": {
+                  "function": "extract_trouble_des_from_html_ppp",
+                  "resultType": "StringType"
+   }
+}

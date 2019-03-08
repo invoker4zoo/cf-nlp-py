@@ -23,7 +23,7 @@ sys.setdefaultencoding('utf-8')
 
 class htmlTableAnalysis(object):
 
-    def __init__(self, origin_html, saving_path):
+    def __init__(self, origin_html):
         """
 
         :param origin_html: 需要传入的html文件原文件内容
@@ -31,7 +31,7 @@ class htmlTableAnalysis(object):
         """
         self.html = origin_html
         self.soup = BeautifulSoup(self.html, 'html5lib')
-        self.saving_path = saving_path
+        # self.saving_path = saving_path
 
     def _get_tag_string(self, tag):
         """
