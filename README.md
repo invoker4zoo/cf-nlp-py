@@ -19,7 +19,7 @@ normal nlp python lib
 
 > #### 待实现功能
 >- [X] 常用工具集合
->- [ ] 文本解析方案（包括单文本的html文件和纯文本解析）
+>- [X] 文本解析方案（包括单文本的html文件和纯文本解析）
 >- [ ] nlp模型工具集合
 >- [X] 数据库链接方法集合
 
@@ -36,26 +36,57 @@ normal nlp python lib
 
 #### [parser](cfnlp/parse): 文本解析方法
 
-* htmlParser:html类文档的解析方法
+###### [html_parser.py](cfnlp/parser/html_parser.py):html类型文档解析
+* htmlTableAnalysis:html类文档的解析方法
 
 - 对html中的表格进行数据提取的方法
 ```
-
+    from cfnlp.parser.html_parser import htmlTableAnalysis
+    # 读入html的文本内容
+    file_path = '/home/showlove/cc/gov/ppp/html'
+    file_name = '高青县东部城区和南部新区集中供热工程项目财政承受能力论证报告（含附表）.htm'
+    with open(os.path.join(file_path, file_name), 'rb') as f:
+        content = f.read()
+    html_parser = htmlTableAnalysis(content)
+    # 解析html文件中的table内容
+    table_info = html_parser.get_html_table_info()
+    # table_info 的json格式
+    """
+    [
+        {
+            "describe": "",   # 表格的描述
+            "matrix": [],     # 表格内容的矩阵形式
+            "tableIndex": 1,  # 表格的序号
+            "tableInfo": {}   # 表格内容的字典格式
+        },
+        ...
+    ]
+    """
 ```
 - 对html中的目录和主要内容进行提取的方法
 ```
 
 ```
+
+###### [event_mining.py](cfnlp/parser/text_grapg_parse/event_mining.py):文档抽取关键信息并图谱化展示
 * textEventGraphParser: 文档抽取关键信息并图谱化展示
 ```
-    使用说明：
+    # 使用说明：
     from cfnlp.parser.text_graph_parser.event_mining import EventMining
     content = '你要分析的文本'
     handler = CrimeMining()
     handler.main(content)
     输出：项目路径下graph_show.html
 ```
-* documentParse: 文本类文档的解析方法
+
+###### [base_text_parser.py](cfnlp/parser/base_text_parser.py):文档抽取关键信息并图谱化展示
+* BaseTextParser: 文本类文档(库)的解析基类
+* BaseTextParser.load_file(必须): 载入文档（库）的方法函数，需要根据不同的场景进行复写，尽量使用generator，避免内存占用
+* BaseTextParser.generate_docs_dictionary: 生成文档库字典
+* BaseTextParser.generate_docs_tfidf: 生成文档库tfidf模型
+* BaseTextParser.generate_library_word2vector: 生成文档库的word2vector文件
+* BaseTextParser.cal_document_tfidf: 根据生成的tfidf计算单篇文档的tfidf值
+* BaseTextParser.cal_document_bow: 根据dictionary计算单篇文档词袋
 
 #### [tools](cfnlp/tools): 常用工具说明
 
@@ -82,12 +113,17 @@ normal nlp python lib
 
 ###### [logger.py](cfnlp/tools/logger.py): python日志工具
 
-- 日志存储会在当前启动脚本路径下建立./log 文件夹，并以时间作为分割
+- 日志存储会在当前启动脚本路径下建立./log 文件夹，并以时间和日志文件的大小作为分割
 
 ```
     from cfnlp.tools.logger import logger
     logger.info('test text')
 ```
+
+#### [process](cfnlp/process): 文本解析流程实例
+
+* event_sample.py: 文档事件抽取流程
+* text_parser.py: 文档库基础解析流程
 
 
 #### [connector](cfnlp/tools/connector): 数据库连接方法集合

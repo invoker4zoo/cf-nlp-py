@@ -8,7 +8,8 @@
 @ file: base_text_parser.py
 @ time: $19-3-8 下午5:19
 """
-from nlp.punct import punct
+from cfnlp.stable.punct import punct
+from cfnlp.tools.logger import logger
 import jieba
 import thulac
 import sys
@@ -24,25 +25,26 @@ sys.setdefaultencoding('utf-8')
 
 class BaseTextParser(object):
 
-    def __init__(self, file_path, seg_model='jieba', model_path=None):
+    def __init__(self, seg_model='jieba', model_path=None):
         """
 
         :param file_path:
         :param seg_model: 使用的分词模型type ['jieba', 'thunlp']
         :param model_path:
         """
-        self.file_path = file_path
         self.seg_model_type = seg_model
         if seg_model == 'jieba':
             self.seg_model = jieba
         elif seg_model == 'thunlp' and model_path != None:
             self.seg_model = thulac.thulac(seg_only=True, model_path=model_path)
 
-    def load_file(self):
+    def load_file(self, file_path):
         """
         可针对不同的文本存储方式复写此方法
+        这里以从文件夹中读入多个文档文件举例
         :return:
         """
+        self.file_path = file_path
         if len(os.listdir(self.file_path)):
             # for file in os.listdir(self.file_path):
             # limit file num for testing
@@ -133,8 +135,8 @@ class BaseTextParser(object):
             # doc_str_list = self.cut_clearn_doc(content)
             self.dictionary.add_documents(doc_str_list)
             if index % 100 == 0:
-                print '[%s] %d file has been loaded' % \
-                      (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index)
+                logger.info('[%s] %d file has been loaded' % \
+                      (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
         # 寻找在文档中出现频率过低的词的id
         low_freq_ids = [tokenid for tokenid, freq in self.dictionary.dfs.items() if freq < 3]
         # filter_tokens 从词典中移除bad_id
@@ -174,8 +176,9 @@ class BaseTextParser(object):
         model = Word2Vec(self._iter_load_file(), size=vector_size, window=window, min_count=min_count,
                          workers=multiprocessing.cpu_count())
         end_time = time.time()
+        #
         process_time = end_time - begin_time
-        print 'generate document library word2vector model success, using %f seconds'%process_time
+        logger.info('generate document library word2vector model success, using %f seconds' % process_time)
         # save vector file
         model.wv.save_word2vec_format(word2vector_file_path, binary=False)
 

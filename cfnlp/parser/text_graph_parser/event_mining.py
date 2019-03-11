@@ -10,7 +10,7 @@ import re
 from cfnlp.parser.text_graph_parser.ltp_parser import *
 from collections import Counter
 from cfnlp.parser.text_graph_parser.graph_show import *
-from cfnlp.parser.text_graph_parser.keywords_textrank import *
+from cfnlp.parser.text_graph_parser.graph_textrank import *
 
 '''事件挖掘'''
 class EventMining:

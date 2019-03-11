@@ -395,7 +395,7 @@ class htmlTableAnalysis(object):
             logger.error('get table info failed for %s' % str(e))
             return []
 
-    def main_parser(self):
+    def get_html_table_info(self):
         """
         html解析主函数
         输出table_info_dic
@@ -423,5 +423,15 @@ class htmlTableAnalysis(object):
                     info['tableIndex'] = index
                     info['tableInfo'] = self.generate_table_json(info['matrix'], row_head, col_head)
                 self.table_info.append(info)
+            return self.table_info
         except Exception, e:
             logger.error('parser html failed for %s' % str(e))
+
+
+if __name__ == '__main__':
+    file_path = '/home/showlove/cc/gov/ppp/html'
+    file_name = '高青县东部城区和南部新区集中供热工程项目财政承受能力论证报告（含附表）.htm'
+    with open(os.path.join(file_path, file_name), 'rb') as f:
+        content = f.read()
+    html_parser = htmlTableAnalysis(content)
+    table_info = html_parser.get_html_table_info()
