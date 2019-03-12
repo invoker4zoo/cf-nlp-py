@@ -9,9 +9,8 @@
 @ time: $19-2-21 上午9:29
 """
 import sys
-sys.path.append('..')
 from elasticsearch import Elasticsearch
-from logger import logger
+from cfnlp.tools.logger import logger
 
 reload(sys)
 sys.setdefaultencoding('utf-8')

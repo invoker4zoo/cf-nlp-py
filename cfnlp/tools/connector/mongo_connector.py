@@ -11,7 +11,7 @@
 import sys
 sys.path.append('..')
 from pymongo import MongoClient
-from logger import logger
+from cfnlp.tools.logger import logger
 import os
 from pymongo.errors import ConnectionFailure
 

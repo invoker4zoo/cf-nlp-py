@@ -11,8 +11,7 @@
 
 import pymysql.cursors
 import sys
-sys.path.append('..')
-from logger import logger
+from cfnlp.tools.logger import logger
 
 class mysqlConnector(object):
 

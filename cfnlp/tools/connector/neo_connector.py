@@ -10,10 +10,9 @@
 """
 from neo4j.v1 import GraphDatabase
 import sys
-sys.path.append('..')
 reload(sys)
 sys.setdefaultencoding('utf-8')
-from logger import logger
+from cfnlp.tools.logger import logger
 
 
 class Neo4jHandler:
