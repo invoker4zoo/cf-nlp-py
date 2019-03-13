@@ -32,6 +32,7 @@ normal nlp python lib
 * AreaTagLibrary: 国内地点识别文件， 在jar_method中载入使用
 * AbbreviationWord.txt: 国内地名缩写词识别文件，在jar_method中载入使用
 * jar-jpype-connector-1.0.jar: 集成java方法中使用的jar包
+* date_format.json: 时间抽取函数模型文件，自然语言描述时间表达
 * punct.py: punct(字符串), sentence_delimiters(句子分割符)
 
 #### [parser](cfnlp/parse): 文本解析方法
@@ -109,6 +110,16 @@ normal nlp python lib
     >- [text_tokenizer_stop]: 含4类分词方法，并激活停用词典。注：目前停用词典使用jar包内部管理，暂不支持外部加载。
     >- [text_tokenizer_user]: 含4类分词方法，支持最多2个自定义词典加载。
     >- [text_tokenizer_user_stop]: 含4类分词方法，支持最多2个自定义词典加载，并激活停用词典。注：目前停用词典使用jar包内部管理，暂不支持外部加载。
+```
+
+###### [date_format.py](cfnlp/tools/date_format.py):时间抽取函数，包括数值时间和自然语言描述时间。
+
+```
+    # 模型初始化
+    date_path = '../stable/date_format.json'
+    date_model = dateFormate(date_path)
+    # 输入文本, 返回json数据列表
+    json_list = date_model.extract_date(text)
 ```
 
 ###### [logger.py](cfnlp/tools/logger.py): python日志工具
