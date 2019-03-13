@@ -25,11 +25,12 @@ sys.setdefaultencoding('utf-8')
 
 class BaseTextParser(object):
 
-    def __init__(self, seg_model='jieba', model_path=None):
+    def __init__(self, seg_model='jieba', model_path=None, config={}):
         """
 
         :param file_path:
         :param seg_model: 使用的分词模型type ['jieba', 'thunlp']
+        :param model_path:
         :param model_path:
         """
         self.seg_model_type = seg_model
@@ -37,29 +38,33 @@ class BaseTextParser(object):
             self.seg_model = jieba
         elif seg_model == 'thunlp' and model_path != None:
             self.seg_model = thulac.thulac(seg_only=True, model_path=model_path)
+        self.config = config
 
-    def load_file(self, file_path):
+    def load_file(self):
         """
         可针对不同的文本存储方式复写此方法
         这里以从文件夹中读入多个文档文件举例
         :return:
         """
-        self.file_path = file_path
-        if len(os.listdir(self.file_path)):
-            # for file in os.listdir(self.file_path):
-            # limit file num for testing
-            for index, file in enumerate(os.listdir(self.file_path)):
-                if index > 300:
-                    break
-                file_path = os.path.join(self.file_path, file)
-                if os.path.isfile(file_path):
-                    with open(file_path, 'rb') as f:
-                        content = f.read().decode('utf-8')
-                    tag = file.split('_')[0]
-                    doc_str_list = self.cut_clearn_doc(content)
-                    yield doc_str_list
-        else:
-            yield None
+        try:
+            self.file_path = self.config['file_path']
+            if len(os.listdir(self.file_path)):
+                # for file in os.listdir(self.file_path):
+                # limit file num for testing
+                for index, file in enumerate(os.listdir(self.file_path)):
+                    if index > 300:
+                        break
+                    file_path = os.path.join(self.file_path, file)
+                    if os.path.isfile(file_path):
+                        with open(file_path, 'rb') as f:
+                            content = f.read().decode('utf-8')
+                        tag = file.split('_')[0]
+                        doc_str_list = self.cut_clearn_doc(content)
+                        yield doc_str_list
+            else:
+                yield None
+        except Exception, e:
+            logger.error('loading file failed for %s' % str(e))
 
     def _iter_load_file(self):
         """
@@ -81,10 +86,13 @@ class BaseTextParser(object):
         elif self.seg_model_type == 'thunlp':
             doc_str_list = self._get_thunlp_cut_list(self.seg_model.cut(doc))
         # 除去停用词
-        stop_word_file = STOP_WORD_DIC_PATH
-        with open(stop_word_file, 'rb') as f:
-            stop_word_list = f.read().split('\n')
-        doc_str_list = self._rm_stop_word(doc_str_list, stop_word_list)
+        if self.config.get('stop_word_dic_path'):
+            stop_word_file = self.config.get('stop_word_dic_path')
+            with open(stop_word_file, 'rb') as f:
+                stop_word_list = f.read().split('\n')
+            doc_str_list = self._rm_stop_word(doc_str_list, stop_word_list)
+        else:
+            pass
         # 除去标点和特殊字符
         doc_str_list = self._rm_punct(doc_str_list, punct)
         return doc_str_list
@@ -133,7 +141,7 @@ class BaseTextParser(object):
         self.dictionary = corpora.Dictionary()
         for index, doc_str_list in enumerate(self.load_file()):
             # doc_str_list = self.cut_clearn_doc(content)
-            self.dictionary.add_documents(doc_str_list)
+            self.dictionary.add_documents([doc_str_list])
             if index % 100 == 0:
                 logger.info('[%s] %d file has been loaded' % \
                       (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
@@ -158,10 +166,13 @@ class BaseTextParser(object):
         docs_tfidf_list = list()
         for index, doc_str_list in enumerate(self.load_file()):
             # doc_str_list = self.cut_clearn_doc(content)
-            doc_bow = self.dictionary.doc2bow(doc_str_list)
+            doc_bow = dictionary.doc2bow(doc_str_list)
             # 生成单个文档tfidf向量
             doc_tfidf = self.tfidf_model[doc_bow]
             docs_tfidf_list.append(doc_tfidf)
+            if index % 100 == 0:
+                logger.info('[%s] %d file has been loaded in tfidf model' % \
+                      (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
         # 生成整个文档库的tfidf模型文件
         corpora.MmCorpus.serialize(tfidf_model_path, docs_tfidf_list, id2word=self.dictionary)
 
