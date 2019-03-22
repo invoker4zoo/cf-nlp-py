@@ -85,7 +85,8 @@ normal nlp python lib
 * BaseTextParser.load_file(必须): 载入文档（库）的方法函数，需要根据不同的场景进行复写，尽量使用generator，避免内存占用
 * BaseTextParser.generate_docs_dictionary: 生成文档库字典
 * BaseTextParser.generate_docs_tfidf: 生成文档库tfidf模型
-* BaseTextParser.generate_library_word2vector: 生成文档库的word2vector文件
+* BaseTextParser.generate_docs_word2vector: 生成文档库的word2vector文件
+* BaseTextParser.generate_docs_corpus: 生成文档库的corpus文件
 * BaseTextParser.cal_document_tfidf: 根据生成的tfidf计算单篇文档的tfidf值
 * BaseTextParser.cal_document_bow: 根据dictionary计算单篇文档词袋
 

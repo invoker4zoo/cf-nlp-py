@@ -17,8 +17,12 @@ from gensim import corpora, models
 from gensim.models import Word2Vec
 import multiprocessing
 from gensim.models.word2vec import LineSentence
+from gensim.models.lsimodel import LsiModel
+from gensim.models.ldamodel import LdaModel
 import os
 import time
+import pickle
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -138,21 +142,25 @@ class BaseTextParser(object):
         :param dictionary_path:生成的dictionary文件的存储地址
         :return:
         """
-        self.dictionary = corpora.Dictionary()
-        for index, doc_str_list in enumerate(self.load_file()):
-            # doc_str_list = self.cut_clearn_doc(content)
-            self.dictionary.add_documents([doc_str_list])
-            if index % 100 == 0:
-                logger.info('[%s] %d file has been loaded' % \
-                      (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
-        # 寻找在文档中出现频率过低的词的id
-        low_freq_ids = [tokenid for tokenid, freq in self.dictionary.dfs.items() if freq < 3]
-        # filter_tokens 从词典中移除bad_id
-        self.dictionary.filter_tokens(low_freq_ids)
-        # 重新分配字典id号
-        self.dictionary.compactify()
-        # 保存字典文件
-        self.dictionary.save(dictionary_path)
+        try:
+            self.dictionary = corpora.Dictionary()
+            for index, doc_str_list in enumerate(self.load_file()):
+                # doc_str_list = self.cut_clearn_doc(content)
+                self.dictionary.add_documents([doc_str_list])
+                if index % 100 == 0:
+                    logger.info('[%s] %d file has been loaded' % \
+                          (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
+            # 寻找在文档中出现频率过低的词的id
+            low_freq_ids = [tokenid for tokenid, freq in self.dictionary.dfs.items() if freq < 3]
+            # filter_tokens 从词典中移除bad_id
+            self.dictionary.filter_tokens(low_freq_ids)
+            # 重新分配字典id号
+            self.dictionary.compactify()
+            # 保存字典文件
+            self.dictionary.save(dictionary_path)
+            logger.info('library dictionary file building finished')
+        except Exception, e:
+            logger.error('generate document library dictionary file failed for %s' % str(e))
 
     def generate_docs_tfidf(self, dictionary_model_path, tfidf_model_path):
         """
@@ -161,37 +169,93 @@ class BaseTextParser(object):
         :param tfidf_model_path: 生成的tfidf模型存储地址
         :return:
         """
-        dictionary = corpora.Dictionary.load(dictionary_model_path)
-        self.tfidf_model = models.TfidfModel(dictionary=dictionary)
-        docs_tfidf_list = list()
-        for index, doc_str_list in enumerate(self.load_file()):
-            # doc_str_list = self.cut_clearn_doc(content)
-            doc_bow = dictionary.doc2bow(doc_str_list)
-            # 生成单个文档tfidf向量
-            doc_tfidf = self.tfidf_model[doc_bow]
-            docs_tfidf_list.append(doc_tfidf)
-            if index % 100 == 0:
-                logger.info('[%s] %d file has been loaded in tfidf model' % \
-                      (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
-        # 生成整个文档库的tfidf模型文件
-        corpora.MmCorpus.serialize(tfidf_model_path, docs_tfidf_list, id2word=self.dictionary)
+        try:
+            dictionary = corpora.Dictionary.load(dictionary_model_path)
+            self.tfidf_model = models.TfidfModel(dictionary=dictionary)
+            docs_tfidf_list = list()
+            for index, doc_str_list in enumerate(self.load_file()):
+                # doc_str_list = self.cut_clearn_doc(content)
+                doc_bow = dictionary.doc2bow(doc_str_list)
+                # 生成单个文档tfidf向量
+                doc_tfidf = self.tfidf_model[doc_bow]
+                docs_tfidf_list.append(doc_tfidf)
+                if index % 100 == 0:
+                    logger.info('[%s] %d file has been loaded in tfidf model' % \
+                          (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), index))
+            # 生成整个文档库的tfidf模型文件
+            corpora.MmCorpus.serialize(tfidf_model_path, docs_tfidf_list, id2word=dictionary)
+            logger.info('library tfidf file building finished')
+        except Exception, e:
+            logger.error('generate documents library tfidf file failed for %s' % str(e))
 
-    def generate_library_word2vector(self, word2vector_file_path, vector_size=300, window=5, min_count=5):
+    def generate_docs_word2vector(self, word2vector_file_path, vector_size=300, window=5, min_count=5):
         """
         生成文档库的word2vector模型文件
         :param word2vector_file_path:
         :return:
         """
-        begin_time = time.time()
-        # initial vector model
-        model = Word2Vec(self._iter_load_file(), size=vector_size, window=window, min_count=min_count,
-                         workers=multiprocessing.cpu_count())
-        end_time = time.time()
-        #
-        process_time = end_time - begin_time
-        logger.info('generate document library word2vector model success, using %f seconds' % process_time)
-        # save vector file
-        model.wv.save_word2vec_format(word2vector_file_path, binary=False)
+        try:
+            begin_time = time.time()
+            # initial vector model
+            model = Word2Vec(self._iter_load_file(), size=vector_size, window=window, min_count=min_count,
+                             workers=multiprocessing.cpu_count())
+            end_time = time.time()
+            #
+            process_time = end_time - begin_time
+            logger.info('generate document library word2vector model success, using %f seconds' % process_time)
+            # save vector file
+            model.wv.save_word2vec_format(word2vector_file_path, binary=False)
+        except Exception, e:
+            logger.error('generate documents library word2vector file failed for %s' % str(e))
+
+    # def generate_docs_corpus(self, dictionary_file_path, corpus_file_path):
+    #     """
+    #     生成文档库corpus文件
+    #     :param corpus_file_path:
+    #     :return:
+    #     """
+    #     try:
+    #         id2word = gensim.corpora.Dictionary.load_from_text('wiki_en_wordids.txt')
+    #     except Exception, e:
+    #         logger.error('generate documents library corpus file failed for %s' % str(e))
+
+    def generate_docs_lsi(self, dictionary_file_path, tfidf_file_path, lsi_file_path, num_topics=100):
+        """
+        生成文档库lsi降维文件
+        :param dictionary_file_path:
+        :param tfidf_file_path:
+        :return:
+        """
+        try:
+            dictionary = corpora.Dictionary.load(dictionary_file_path)
+            tfidf_corpus = corpora.MmCorpus(tfidf_file_path)
+            print tfidf_corpus
+            lsi = LsiModel(corpus=tfidf_corpus, id2word=dictionary, num_topics=100)
+            # lsi.print_topics(10)
+            with open(lsi_file_path, 'wb') as f:
+                pickle.dump(lsi, f)
+            logger.info('lsi model file building finished')
+            # doc_lsi = lsi[doc_bow]
+        except Exception, e:
+            logger.error('generate documents library lsi model file failed for %s' % str(e))
+
+    def generate_docs_lda(self, dictionary_file_path, tfidf_file_path, lda_file_path, num_topics=100):
+        """
+        生成文档库lda主题文件
+        :param dictionary_file_path:
+        :param tfidf_file_path:
+        :param lda_file_path:
+        :return:
+        """
+        try:
+            dictionary = corpora.Dictionary.load(dictionary_file_path)
+            tfidf_corpus = corpora.MmCorpus(tfidf_file_path)
+            lda = LdaModel(corpus=tfidf_corpus, id2word=dictionary, num_topics=100, update_every=0, passes=20)
+            with open(lda_file_path, 'wb') as f:
+                pickle.dump(lda, f)
+                logger.info('lda model file building finished')
+        except Exception, e:
+            logger.error('generate documents library lda file failed for %s' % str(e))
 
     # def _initial_calculation_model(self):
     #     pass
@@ -217,6 +281,6 @@ class BaseTextParser(object):
         :return:
         """
         dictionary = corpora.Dictionary.load(dictionary_model_path)
-        tfidf_model = models.TfidfModel(dictionary=dictionary)
+        # tfidf_model = models.TfidfModel(dictionary=dictionary)
         doc_str_list = self.cut_clearn_doc(document)
         return dictionary.doc2bow(doc_str_list)
