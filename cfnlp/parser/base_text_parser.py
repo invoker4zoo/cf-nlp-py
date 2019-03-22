@@ -56,15 +56,14 @@ class BaseTextParser(object):
                 # for file in os.listdir(self.file_path):
                 # limit file num for testing
                 for index, file in enumerate(os.listdir(self.file_path)):
-                    if index > 300:
-                        break
-                    file_path = os.path.join(self.file_path, file)
-                    if os.path.isfile(file_path):
-                        with open(file_path, 'rb') as f:
-                            content = f.read().decode('utf-8')
-                        tag = file.split('_')[0]
-                        doc_str_list = self.cut_clearn_doc(content)
-                        yield doc_str_list
+                    if index % 80 == 0:
+                        file_path = os.path.join(self.file_path, file)
+                        if os.path.isfile(file_path):
+                            with open(file_path, 'rb') as f:
+                                content = f.read().decode('utf-8')
+                            tag = file.split('_')[0]
+                            doc_str_list = self.cut_clearn_doc(content)
+                            yield doc_str_list
             else:
                 yield None
         except Exception, e:
@@ -284,3 +283,46 @@ class BaseTextParser(object):
         # tfidf_model = models.TfidfModel(dictionary=dictionary)
         doc_str_list = self.cut_clearn_doc(document)
         return dictionary.doc2bow(doc_str_list)
+
+    def generate_docs_topcis(self, topics_model_path, dictionary_model_path, num_topics, model_define):
+        """
+        文档库主题生成
+        LSI:基于SVD方法生成文本主题，计算耗时，适合文本量较小时，获取的主题向量缺乏统计基础
+        LDA:潜在狄利克雷分布基于统计概率的主题模型
+        :param topics_model_path: 主题模型保存路径
+        :param dictionary_model_path: 文档库字典保存路径
+        :param num_topics: 主题个数
+        :param model_define: 模型选择：LSI、LDA
+        :return:
+        """
+        dictionary = corpora.Dictionary.load(dictionary_model_path)
+        if model_define == "LSI":
+            begin_time = time.time()
+            lsi_model = None
+            for index, doc_str_list in enumerate(self.load_file()):
+                doc_bow = dictionary.doc2bow(doc_str_list)
+                tfidf_model = models.TfidfModel(dictionary=dictionary)
+                corpus_tfidf = tfidf_model[doc_bow]
+                if index < 1:
+                    lsi_model = models.LsiModel([corpus_tfidf], num_topics=num_topics, id2word=dictionary)
+                else:
+                    lsi_model.add_documents([corpus_tfidf])
+            end_time = time.time()
+            process_time = end_time - begin_time
+            logger.info('generate documents topics model success, using %f seconds' % process_time)
+            logger.info(lsi_model.show_topics(num_topics=num_topics, num_words=10))
+            lsi_model.save(topics_model_path)
+        elif model_define == "LDA":
+            begin_time = time.time()
+            corpus_tfidf_list = list()
+            for index, doc_str_list in enumerate(self.load_file()):
+                doc_bow = dictionary.doc2bow(doc_str_list)
+                tfidf_model = models.TfidfModel(dictionary=dictionary)
+                corpus_tfidf = tfidf_model[doc_bow]
+                corpus_tfidf_list.append(corpus_tfidf)
+            lda_model = models.LdaModel(corpus_tfidf_list, num_topics=num_topics, id2word=dictionary)
+            end_time = time.time()
+            process_time = end_time - begin_time
+            logger.info('generate documents topics model success, using %f seconds' % process_time)
+            logger.info(lda_model.show_topics(num_topics=num_topics, num_words=10))
+            lda_model.save(topics_model_path)
