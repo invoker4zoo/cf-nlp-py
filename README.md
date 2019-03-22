@@ -88,6 +88,7 @@ normal nlp python lib
 * BaseTextParser.generate_library_word2vector: 生成文档库的word2vector文件
 * BaseTextParser.cal_document_tfidf: 根据生成的tfidf计算单篇文档的tfidf值
 * BaseTextParser.cal_document_bow: 根据dictionary计算单篇文档词袋
+* BaseTextParser.generate_docs_topcis: 生成文档库的主题模型
 
 #### [tools](cfnlp/tools): 常用工具说明
 

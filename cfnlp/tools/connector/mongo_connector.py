@@ -31,12 +31,13 @@ class mongoConnector(object):
 
 
 if __name__ == "__main__":
-    MONGODB_SERVER = "127.0.0.1"
+    # MONGODB_SERVER = "127.0.0.1"
+    MONGODB_SERVER = "192.168.155.125"
     MONGODB_PORT = 27017
     MONGODB_DB = "gov_finace"
-    MONGODB_COLLECTION = "center"
+    MONGODB_COLLECTION = "country"
     db = mongoConnector(MONGODB_SERVER,MONGODB_PORT,MONGODB_DB,MONGODB_COLLECTION)
-    # for i in db.collection.find():
-    #     print type(i)
-    # result = db.collection.find({'noticeTitle': '关于开展三大粮食作物完全成本保险和收入保险试点工作的通知'})
-    # print result
+    for i in db.collection.find():
+        print type(i)
+    result = db.collection.find({'noticeTitle': '关于开展三大粮食作物完全成本保险和收入保险试点工作的通知'})
+    print result
