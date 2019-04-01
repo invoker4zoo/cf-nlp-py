@@ -124,6 +124,12 @@ normal nlp python lib
     json_list = date_model.extract_date(text)
 ```
 
+###### [data_index_format.py](cfnlp/tools/data_index_format.py):数据指标抽取函数。
+
+```
+    see demo
+```
+
 ###### [logger.py](cfnlp/tools/logger.py): python日志工具
 
 - 日志存储会在当前启动脚本路径下建立./log 文件夹，并以时间和日志文件的大小作为分割
