@@ -34,6 +34,7 @@ normal nlp python lib
 * jar-jpype-connector-1.0.jar: 集成java方法中使用的jar包
 * date_format.json: 时间抽取函数模型文件，自然语言描述时间表达
 * punct.py: punct(字符串), sentence_delimiters(句子分割符)
+* PKUSUMSUM.jar： 文本摘要jar包
 
 #### [parser](cfnlp/parse): 文本解析方法
 
@@ -98,6 +99,7 @@ normal nlp python lib
 - 初始化java方法类
 ```
     1.jvm路径加载;2.启动jvm;3.初始化方法模型
+    2.多jar包加载:启动jvm时jar包用冒号":"连接
 ```
 
 - 地域识别方法
@@ -128,6 +130,12 @@ normal nlp python lib
 
 ```
     see demo
+```
+
+###### [text_abstract.py](cfnlp/tools/text_abstract.py):文本自动摘要函数。
+
+```
+    # 基于北大万小军老师团队的自动摘要方法汇总，支持单文档摘要、多文档摘要、topic-focused多文档摘要。
 ```
 
 ###### [logger.py](cfnlp/tools/logger.py): python日志工具

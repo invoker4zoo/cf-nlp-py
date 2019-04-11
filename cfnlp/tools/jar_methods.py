@@ -24,7 +24,7 @@ class NLPModel(object):
         """
         jar methods including: ansj, area extra
         :param model_path:
-        :param jar_path:
+        :param jar_path: load multiple jar -> using ':' connection. such as name1.jar:name2.jar
         :param user_dic_path: format -> user_dic_name=user_dic_path
         :return:
         """
