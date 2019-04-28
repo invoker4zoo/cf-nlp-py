@@ -12,6 +12,7 @@ normal nlp python lib
 * [tools](cfnlp/tools): python常用工具方法集合
 * [connector](cfnlp/tools/connector): 数据库连接方法
 * [model](cfnlp/model): 自然语言处理相关模型算法
+* [auto_search](cfnlp/auto_search): 文档库自动搜索引擎构建与查询
 
 ## 版本更新日志
 
@@ -202,3 +203,9 @@ normal nlp python lib
     # 初始化neo4j连接，需要ip地址，端口，用户名，用户密码
     neo4j_db = Neo4jConnector("bolt://localhost:7687", "neo4j", "passw0rd")
 ```
+
+#### [auto_search](cfnlp/auto_search):自动搜索引擎构建
+
+###### [build_es.py](cfnlp/auto_search/build_es.py):es构建
+
+###### [data_process.py](cfnlp/auto_search/data_process.py):文档数据转化，存入es
