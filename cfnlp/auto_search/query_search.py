@@ -9,15 +9,47 @@
 @Site    : https://github.com/zhangyuo
 """
 
+from elasticsearch import Elasticsearch
+from cfnlp.auto_search.config.config import *
 
-class query(object):
 
-    def __init__(self):
-        pass
+class searchModel(object):
 
-    def search_by_filed(self):
-        pass
+    def __init__(self, url, index, type):
+        """
+        暂时没有分布式，单个服务器
+        :param url:
+        :param index:
+        :param type:
+        """
+        self.es = Elasticsearch([url])
+        self.index = index
+        self.type = type
+        self.re_connect = 3
+
+    def search_by_filed(self, query, filed='title'):
+        """
+        根据文档字段查询
+        :param query:
+        :param filed: 文档字段
+        :return:
+        """
+        responce = list()
+        dsl_query = {
+            "query": {
+                "match": {
+                    filed: {
+                        "query": query
+                    }
+                }
+            }
+        }
+        result = self.es.search(self.index, self.type, body=dsl_query)
+        for item in result.get('hits').get('hits'):
+            responce.append(item)
+        return responce
 
 
 if __name__ == '__main__':
-    q = query()
+    model = searchModel(ES_URL, DOCS_INDEX, DOCS_TYPE)
+    model.search_by_filed("农业转型")
