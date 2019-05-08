@@ -35,8 +35,6 @@ class docsTrans(object):
         try:
             for i in self.db.collection.find():
                 if i.get('_id', ''):
-                    if num == 140:
-                        num += 1
                     num += 1
                     id = i['_id']
                     json = {

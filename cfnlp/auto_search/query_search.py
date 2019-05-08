@@ -13,7 +13,7 @@ from elasticsearch import Elasticsearch
 from cfnlp.auto_search.config.config import *
 
 
-class searchModel(object):
+class dslModel(object):
 
     def __init__(self, url, index, type):
         """
@@ -34,22 +34,33 @@ class searchModel(object):
         :param filed: 文档字段
         :return:
         """
-        responce = list()
+        response = list()
         dsl_query = {
-            "query": {
-                "match": {
-                    filed: {
-                        "query": query
-                    }
+            'query': {
+                'match': {
+                    filed: query
                 }
             }
         }
-        result = self.es.search(self.index, self.type, body=dsl_query)
+        result = self.es.search(self.index, body=dsl_query)
         for item in result.get('hits').get('hits'):
-            responce.append(item)
-        return responce
+            response.append(item)
+        return response
+
+
+def print_doc(response):
+    """
+    打印响应结果
+    :param response:
+    :return:
+    """
+    for i, item in enumerate(response):
+        info = item.get('_source', '')
+        title = info.get('title', '')
+        print ('%d#%s' % (i, title))
 
 
 if __name__ == '__main__':
-    model = searchModel(ES_URL, DOCS_INDEX, DOCS_TYPE)
-    model.search_by_filed("农业转型")
+    model = dslModel(ES_URL, DOCS_INDEX, DOCS_TYPE)
+    response = model.search_by_filed("农业")
+    print_doc(response)
