@@ -35,7 +35,7 @@ normal nlp python lib
 * jar-jpype-connector-1.0.jar: 集成java方法中使用的jar包
 * date_format.json: 时间抽取函数模型文件，自然语言描述时间表达
 * punct.py: punct(字符串), sentence_delimiters(句子分割符)
-* PKUSUMSUM.jar： 文本摘要jar包
+* text-abstract.jar： 文本摘要jar包
 
 #### [parser](cfnlp/parse): 文本解析方法
 
